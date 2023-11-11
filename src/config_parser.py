@@ -10,7 +10,7 @@ class ConfigParser:
         with open(config_path, 'r') as file:
             self.config = yaml.safe_load(file)
         self.validate_schema()
-        self.directory = Path(__file__).parent.parent / self.config['global_settings']['directory']
+        self.data_dir = Path(__file__).parent.parent / self.config['global_settings']['directory']
         self.global_settings = self.config['global_settings']
         self.datasets = self.config['datasets']
 

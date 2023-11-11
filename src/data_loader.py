@@ -18,6 +18,8 @@ def load_dataset(filename: str) -> pd.DataFrame:
 class DataLoader:
     def __init__(self, configparser: ConfigParser):
         self.configParser = configparser
+        if not os.path.exists(self.configParser.data_dir):
+            os.makedirs(self.configParser.data_dir)
 
     def load_data(self) -> (list, list):
         datasets = []
@@ -48,14 +50,14 @@ class DataLoader:
             file = self.download_dataset(table)
         else:
             print(f'Loading table {table}')
-            file = self.configParser.directory / table
+            file = self.configParser.data_dir / table
 
         return load_dataset(file)
 
     def download_dataset(self, url: str) -> str:
         response = requests.get(url)
         if response.status_code == 200:
-            file = self.configParser.directory / url.split('/')[-1]
+            file = self.configParser.data_dir / url.split('/')[-1]
             with open(file, 'wb') as f:
                 f.write(response.content)
         else:
