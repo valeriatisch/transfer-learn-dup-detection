@@ -1,0 +1,15 @@
+global_settings:
+  directory: 'data'
+  default_pair_method: 'SortedNeighbourhood'
+
+datasets:
+  - id: 'freedb_cds'
+    tables:
+      - 'freedb_cds.csv'
+    pair_method: 'Block'
+    gold_standard: 'freedb_cds_goldstandard.csv'
+
+  - id: 'hpi_cora'
+    tables:
+      - 'hpi_cora.csv'
+    gold_standard: 'hpi_cora_goldstandard.csv'

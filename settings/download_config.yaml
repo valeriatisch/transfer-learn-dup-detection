@@ -1,0 +1,15 @@
+global_settings:
+  directory: 'data'
+  default_pair_method: 'SortedNeighbourhood'
+
+datasets:
+  - id: 'freedb_cds'
+    tables:
+      - 'https://raw.githubusercontent.com/HPI-Information-Systems/snowman/ca636299b33a88b4fb1655c0ffa55b5c1ab17022/wrapper/assets/database_setup/datasets/freedb_cds.csv'
+    pair_method: 'Block'
+    gold_standard: 'https://raw.githubusercontent.com/HPI-Information-Systems/snowman/main/wrapper/assets/database_setup/experiments/freedb_cds_goldstandard.csv'
+
+  - id: 'hpi_cora'
+    tables:
+      - 'https://raw.githubusercontent.com/HPI-Information-Systems/snowman/ca636299b33a88b4fb1655c0ffa55b5c1ab17022/wrapper/assets/database_setup/datasets/hpi_cora.csv'
+    gold_standard: 'https://raw.githubusercontent.com/HPI-Information-Systems/snowman/main/wrapper/assets/database_setup/experiments/hpi_cora_goldstandard.csv'
