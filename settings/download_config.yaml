@@ -1,21 +1,23 @@
 global_settings:
   directory: 'data'
-  default_pair_method: 'SortedNeighbourhood'
+  # default_phonetic_method: 'soundex'
+  default_pair_method: 'sortedneighbourhood'
 
 datasets:
   - id: 'freedb_cds'
     tables:
-      - 'https://raw.githubusercontent.com/HPI-Information-Systems/snowman/ca636299b33a88b4fb1655c0ffa55b5c1ab17022/wrapper/assets/database_setup/datasets/freedb_cds.csv'
-    pair_method: 'Block'
-    gold_standard: 'https://raw.githubusercontent.com/HPI-Information-Systems/snowman/main/wrapper/assets/database_setup/experiments/freedb_cds_goldstandard.csv'
+      - 'freedb_cds_freedb_cds.csv'
+    phonetic_method: 'soundex'
+    gold_standard: 'freedb_cds_freedb_cds_goldstandard.csv'
 
   - id: 'hpi_cora'
     tables:
-      - 'https://raw.githubusercontent.com/HPI-Information-Systems/snowman/ca636299b33a88b4fb1655c0ffa55b5c1ab17022/wrapper/assets/database_setup/datasets/hpi_cora.csv'
-    gold_standard: 'https://raw.githubusercontent.com/HPI-Information-Systems/snowman/main/wrapper/assets/database_setup/experiments/hpi_cora_goldstandard.csv'
+      - 'hpi_cora_hpi_cora.csv'
+    gold_standard: 'hpi_cora_hpi_cora_goldstandard.csv'
+    pair_method: 'block'
 
   - id: 'bikes'
     tables:
-      - 'http://pages.cs.wisc.edu/~anhai/data/784_data/bikes/csv_files/bikedekho.csv'
-      - 'http://pages.cs.wisc.edu/~anhai/data/784_data/bikes/csv_files/bikewale.csv'
-    gold_standard: 'http://pages.cs.wisc.edu/~anhai/data/784_data/bikes/csv_files/labeled_data.csv'
+      - 'bikes_bikedekho.csv'
+      - 'bikes_bikewale.csv'
+    gold_standard: 'bikes_labeled_data.csv'
