@@ -13,19 +13,21 @@ It has the following structure:
 
 1. **Global Settings:**
 
-    | Name                  | Required | Description                                    |
-    |:----------------------|:---------|:-----------------------------------------------|
-    | `directory`           | ✅        | Directory where data is or will be stored.     |
-    | `default_pair_method` | ❌        | Default method for creating candidate matches. |
+    | Name                      | Required | Description                                              | Accepted Values                                    |
+    |:--------------------------|:---------|:---------------------------------------------------------|:---------------------------------------------------|
+    | `directory`               | ✅        | Directory in repo root where data is or will be stored.  | File path string, e.g. `data`                      |
+    | `default_phonetic_method` | ❌        | Default method for phonetic matching.                    | `soundex`, `nysiis`, `metaphone`, `match_rating`   |
+    | `default_pair_method`     | ❌        | Default method for creating candidate matches.           | `full`, `block`, `sortedneighbourhood`, `random`   |
 
 2. **Datasets:** An **array** of datasets, each including:
 
-    | Name             | Required  | Description                                                                                                                |
-    |------------------|-----------|----------------------------------------------------------------------------------------------------------------------------|
-    | `id`             | ✅         | Unique identifier for the dataset.                                                                                         |
-    | `pair_method`    | ❌         | Method used for creating candidate matches. If not specified, the default method from the global settings will be applied. |
-    | `tables`         | ✅         | Array of paths or URLs to the dataset tables.                                                                              |
-    | `gold_standard`  | ✅         | Path or URL to the gold standard for the dataset.                                                                          |
+   | Name              | Required  | Description                                                                                                                |
+   |-------------------|-----------|----------------------------------------------------------------------------------------------------------------------------|
+   | `id`              | ✅         | Unique identifier for the dataset.                                                                                         |
+   | `phonetic_method` | ❌         | Method used for phonetic matching. If not specified, the default method from the global settings will be applied.          |
+   | `pair_method`     | ❌         | Method used for creating candidate matches. If not specified, the default method from the global settings will be applied. |
+   | `tables`          | ✅         | Array of paths or URLs to the dataset tables.                                                                              |
+   | `gold_standard`   | ✅         | Path or URL to the gold standard for the dataset.                                                                          |
 
 All values should be strings.
 
