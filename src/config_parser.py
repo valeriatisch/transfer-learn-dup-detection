@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 
 import jsonschema
@@ -10,7 +11,8 @@ class ConfigParser:
         with open(config_path, 'r') as file:
             self.config = yaml.safe_load(file)
         self.validate_schema()
-        self.data_dir = Path(__file__).parent.parent / self.config['global_settings']['directory']
+        root_dir = Path(__file__).parent.parent
+        self.data_dir = root_dir / self.config['global_settings']['directory']
         self.global_settings = self.config['global_settings']
         self.datasets = self.config['datasets']
 
@@ -47,7 +49,11 @@ class ConfigParser:
                 }
             }
         }
-        jsonschema.validate(instance=self.config, schema=schema)
+        try:
+            jsonschema.validate(instance=self.config, schema=schema)
+        except jsonschema.exceptions.ValidationError as e:
+            logging.error(f"Configuration validation error: {e}")
+            raise
 
     def get(self, section, key=None) -> dict:
         if key:
