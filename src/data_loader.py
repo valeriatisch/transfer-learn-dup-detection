@@ -18,9 +18,9 @@ class DataLoader:
         datasets = []
         gold_standards = []
         with cf.ThreadPoolExecutor(max_workers=5) as executor:
-            future_to_ds = {executor.submit(self.load_tables, ds.get('tables'),
+            future_to_ds = {executor.submit(self._load_tables, ds.get('tables'),
                                             ds.get('id')): ds for ds in self.configParser.datasets}
-            future_to_gs = {executor.submit(self.load_single_table, ds['gold_standard'],
+            future_to_gs = {executor.submit(self._load_single_table, ds['gold_standard'],
                                             ds.get('id')): ds for ds in self.configParser.datasets}
             for future in cf.as_completed(future_to_ds):
                 datasets.append(future.result())
@@ -28,15 +28,15 @@ class DataLoader:
                 gold_standards.append(future.result())
         return datasets, gold_standards
 
-    def load_tables(self, tables: list, ds_id: str) -> list:
+    def _load_tables(self, tables: list, ds_id: str) -> list:
         results = []
         with cf.ThreadPoolExecutor(max_workers=5) as executor:
-            futures = [executor.submit(self.load_single_table, table, ds_id) for table in tables]
+            futures = [executor.submit(self._load_single_table, table, ds_id) for table in tables]
             for future in futures:
                 results.append(future.result())
         return results
 
-    def load_single_table(self, table: str, ds_id: str) -> pd.DataFrame:
+    def _load_single_table(self, table: str, ds_id: str) -> pd.DataFrame:
         try:
             if table.startswith('http'):
                 logging.info(f'Downloading table {table}')
