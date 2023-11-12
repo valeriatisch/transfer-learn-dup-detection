@@ -51,7 +51,9 @@ datasets:
 ### Running the Application 🚀
 
    ```bash
-   python src/main.py --config /settings/config.yml
+   python src/main.py --config settings/config.yml
    ```
 
-The specified datasets in `/settings/config.yml` will be either downloaded and saved in the specified directory or loaded from this directory.
+If no path to a config file is specified, the application will look for a file named `config.yml` in the `settings` directory by default.
+
+The specified datasets in `settings/config.yml` will be either downloaded and saved in the specified directory or loaded from this directory.
