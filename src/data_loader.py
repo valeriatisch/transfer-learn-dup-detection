@@ -2,6 +2,7 @@ import concurrent.futures as cf
 import logging
 import os
 from pathlib import Path
+from typing import List, Tuple
 
 import pandas as pd
 import requests
@@ -11,24 +12,24 @@ from config_parser import ConfigParser
 
 class DataLoader:
     def __init__(self, configparser: ConfigParser):
-        self.configParser = configparser
-        os.makedirs(self.configParser.data_dir, exist_ok=True)
+        self.configparser = configparser
+        os.makedirs(self.configparser.data_dir, exist_ok=True)
 
-    def load_data(self) -> (list, list):
+    def load_data(self) -> Tuple[List[List[pd.DataFrame]], List[pd.DataFrame]]:
         datasets = []
         gold_standards = []
         with cf.ThreadPoolExecutor(max_workers=5) as executor:
             future_to_ds = {executor.submit(self._load_tables, ds.get('tables'),
-                                            ds.get('id')): ds for ds in self.configParser.datasets}
+                                            ds.get('id')): ds for ds in self.configparser.datasets}
             future_to_gs = {executor.submit(self._load_single_table, ds['gold_standard'],
-                                            ds.get('id')): ds for ds in self.configParser.datasets}
+                                            ds.get('id')): ds for ds in self.configparser.datasets}
             for future in cf.as_completed(future_to_ds):
                 datasets.append(future.result())
             for future in cf.as_completed(future_to_gs):
                 gold_standards.append(future.result())
         return datasets, gold_standards
 
-    def _load_tables(self, tables: list, ds_id: str) -> list:
+    def _load_tables(self, tables: List[str], ds_id: str) -> List[pd.DataFrame]:
         results = []
         with cf.ThreadPoolExecutor(max_workers=5) as executor:
             futures = [executor.submit(self._load_single_table, table, ds_id) for table in tables]
@@ -43,7 +44,7 @@ class DataLoader:
                 file = self.download_dataset(table, ds_id)
             else:
                 logging.info(f'Loading table {table}')
-                file = Path(self.configParser.data_dir) / table
+                file = Path(self.configparser.data_dir) / table
 
             return self.load_dataset(file)
         except Exception as e:
@@ -66,7 +67,7 @@ class DataLoader:
             response = requests.get(url)
             response.raise_for_status()
 
-            file_path = Path(self.configParser.data_dir) / f'{ds_id}_{url.split("/")[-1]}'
+            file_path = Path(self.configparser.data_dir) / f'{ds_id}_{url.split("/")[-1]}'
             content = response.content.decode('utf-8')
 
             lines = content.split('\n')
