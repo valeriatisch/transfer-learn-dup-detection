@@ -5,11 +5,17 @@ global_settings:
 datasets:
   - id: 'freedb_cds'
     tables:
-      - 'freedb_cds.csv'
+      - 'freedb_cds_freedb_cds.csv'
     pair_method: 'Block'
-    gold_standard: 'freedb_cds_goldstandard.csv'
+    gold_standard: 'freedb_cds_freedb_cds_goldstandard.csv'
 
   - id: 'hpi_cora'
     tables:
-      - 'hpi_cora.csv'
-    gold_standard: 'hpi_cora_goldstandard.csv'
+      - 'hpi_cora_hpi_cora.csv'
+    gold_standard: 'hpi_cora_hpi_cora_goldstandard.csv'
+
+  - id: 'bikes'
+    tables:
+      - 'bikes_bikedekho.csv'
+      - 'bikes_bikewale.csv'
+    gold_standard: 'bikes_labeled_data.csv'

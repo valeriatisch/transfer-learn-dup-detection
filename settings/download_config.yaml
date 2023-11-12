@@ -13,3 +13,9 @@ datasets:
     tables:
       - 'https://raw.githubusercontent.com/HPI-Information-Systems/snowman/ca636299b33a88b4fb1655c0ffa55b5c1ab17022/wrapper/assets/database_setup/datasets/hpi_cora.csv'
     gold_standard: 'https://raw.githubusercontent.com/HPI-Information-Systems/snowman/main/wrapper/assets/database_setup/experiments/hpi_cora_goldstandard.csv'
+
+  - id: 'bikes'
+    tables:
+      - 'http://pages.cs.wisc.edu/~anhai/data/784_data/bikes/csv_files/bikedekho.csv'
+      - 'http://pages.cs.wisc.edu/~anhai/data/784_data/bikes/csv_files/bikewale.csv'
+    gold_standard: 'http://pages.cs.wisc.edu/~anhai/data/784_data/bikes/csv_files/labeled_data.csv'
