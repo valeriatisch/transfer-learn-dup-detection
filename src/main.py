@@ -5,6 +5,8 @@ from pathlib import Path
 
 from config_parser import ConfigParser
 from data_loader import DataLoader
+from preprocessor import Preprocessor
+from indexer import Indexer
 
 
 def setup_logging():
@@ -37,15 +39,17 @@ def main():
     cp = ConfigParser(args.config)
     dl = DataLoader(cp)
     datasets, gold_standards = dl.load_data()
-    # todo: clean later
-    for ds in datasets:
-        for df in ds:
-            print(df.head(3))
-    for df in gold_standards:
-        print(df.head(3))
-    # todo: implement selection of key attributes (highest entropy)
-    # todo: implement indexing -> toolkit
+    print(datasets)
+    print(gold_standards)
+    pp = Preprocessor(cp, datasets)
+    cleaned_datasets = pp.clean_data()
+    ix = Indexer(cp, cleaned_datasets)
+    mis = ix.index_data()
+    # todo: clean up in the end
+    print(mis)
     # todo: unify data format for goldstandard?
+    # todo: implement compare
+    # todo: implement monge-elkan
 
 
 if __name__ == "__main__":
