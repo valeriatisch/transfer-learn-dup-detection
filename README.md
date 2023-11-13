@@ -35,19 +35,28 @@ All values should be strings.
 ```yaml
 global_settings:
   directory: 'data'
-  default_pair_method: 'SortedNeighbourhood'
+  default_phonetic_method: 'soundex'
+  default_pair_method: 'sortedneighbourhood'
 
 datasets:
-  - id: 'dataset1'
-    pair_method: 'Block'
+  - id: 'freedb_cds'
     tables:
-      - 'path/to/table1.csv'
-    gold_standard: 'path/to/gold_standard.csv'
+      - 'freedb_cds_freedb_cds.csv'
+    phonetic_method: 'soundex'
+    gold_standard: 'freedb_cds_freedb_cds_goldstandard.csv'
 
-  - id: 'dataset2'
+  - id: 'hpi_cora'
     tables:
-      - 'https://example.com/table2.csv'
-    gold_standard: 'https://example.com/gold_standard2.csv'
+      - 'hpi_cora_hpi_cora.csv'
+    gold_standard: 'hpi_cora_hpi_cora_goldstandard.csv'
+    pair_method: 'block'
+
+  - id: 'bikes'
+    tables:
+      - 'http://pages.cs.wisc.edu/~anhai/data/784_data/bikes/csv_files/bikedekho.csv'
+      - 'http://pages.cs.wisc.edu/~anhai/data/784_data/bikes/csv_files/bikewale.csv'
+    gold_standard: 'http://pages.cs.wisc.edu/~anhai/data/784_data/bikes/csv_files/labeled_data.csv'
+
 ```
 
 ### Running the Application 🚀
