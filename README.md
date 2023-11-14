@@ -62,11 +62,11 @@ datasets:
 ### Running the Application 🚀
 
    ```bash
-   python src/main.py --config settings/config.yml
+   python src/main.py --config settings/config.yaml
    ```
 
-If no path to a config file is specified, the application will look for a file named `config.yml` in the `settings` directory by default.
+If no path to a config file is specified, the application will look for a file named `config.yaml` in the `settings` directory by default.
 
-The specified datasets in `settings/config.yml` will be either downloaded and saved in the specified directory or loaded from this directory.
+The datasets specified in the config will be either downloaded and saved in the specified directory or loaded from this directory.
 
 A `log/logs.log` file will be created in the repo root directory. It will save all logs from an application run.
