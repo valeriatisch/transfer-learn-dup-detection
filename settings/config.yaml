@@ -19,3 +19,4 @@ datasets:
       - 'http://pages.cs.wisc.edu/~anhai/data/784_data/bikes/csv_files/bikedekho.csv'
       - 'http://pages.cs.wisc.edu/~anhai/data/784_data/bikes/csv_files/bikewale.csv'
     gold_standard: 'http://pages.cs.wisc.edu/~anhai/data/784_data/bikes/csv_files/labeled_data.csv'
+    candidate_set: 'http://pages.cs.wisc.edu/~anhai/data/784_data/bikes/csv_files/candset.csv'
