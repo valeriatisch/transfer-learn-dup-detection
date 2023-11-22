@@ -1,0 +1,23 @@
+global_settings:
+  directory: 'data'
+  # default_phonetic_method: 'soundex'
+  default_pair_method: 'sortedneighbourhood'
+
+datasets:
+  - id: 'freedb_cds'
+    tables:
+      - 'freedb_cds_freedb_cds.csv'
+    phonetic_method: 'soundex'
+    gold_standard: 'freedb_cds_freedb_cds_goldstandard.csv'
+
+  - id: 'hpi_cora'
+    tables:
+      - 'hpi_cora_hpi_cora.csv'
+    gold_standard: 'hpi_cora_hpi_cora_goldstandard.csv'
+    pair_method: 'block'
+
+  - id: 'bikes'
+    tables:
+      - 'bikes_bikedekho.csv'
+      - 'bikes_bikewale.csv'
+    gold_standard: 'bikes_labeled_data.csv'
