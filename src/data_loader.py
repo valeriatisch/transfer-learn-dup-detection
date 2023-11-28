@@ -1,6 +1,5 @@
 import concurrent.futures as cf
 import logging
-import os
 from pathlib import Path
 from typing import List, Dict, Tuple
 
@@ -13,7 +12,7 @@ from config_parser import ConfigParser
 class DataLoader:
     def __init__(self, configparser: ConfigParser):
         self.configparser = configparser
-        os.makedirs(self.configparser.data_dir, exist_ok=True)
+        # os.makedirs(self.configparser.data_dir, exist_ok=True)
         self.ds_dict = {}
 
     def load_data(self) -> Dict[str, Dict]:
@@ -43,6 +42,7 @@ class DataLoader:
                 "gold_standard": gs,
                 "pair_method": ds_info.get("pair_method"),
                 "phonetic_method": ds_info.get("phonetic_method"),
+                "similarity_measures": ds_info.get("similarity_measures"),
             }
         self.load_candidate_sets()
         return self.ds_dict

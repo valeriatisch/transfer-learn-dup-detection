@@ -1,5 +1,7 @@
 import logging
+import os
 from pathlib import Path
+from typing import Dict
 
 import jsonschema
 import yaml
@@ -12,6 +14,7 @@ class ConfigParser:
         self.validate_schema()
         root_dir = Path(__file__).parent.parent
         self.data_dir = root_dir / self.config["global_settings"]["directory"]
+        os.makedirs(self.data_dir, exist_ok=True)
         self.global_settings = self.config["global_settings"]
         self.default_pair_method = self.global_settings.get("default_pair_method", None)
         if self.default_pair_method is None:
@@ -19,6 +22,28 @@ class ConfigParser:
         self.default_phonetic_method = self.global_settings.get(
             "default_phonetic_method", None
         )
+        self.default_similarity_string_measure = self.global_settings.get(
+            "default_similarity_measures", None
+        )
+        if self.default_similarity_string_measure is not None:
+            self.default_similarity_string_measure = (
+                self.default_similarity_string_measure.get("string", None)
+            )
+            if self.default_similarity_string_measure is None:
+                self.default_similarity_string_measure = "levenshtein"
+        else:
+            self.default_similarity_string_measure = "levenshtein"
+        self.default_similarity_numeric_measure = self.global_settings.get(
+            "default_similarity_measures", None
+        )
+        if self.default_similarity_numeric_measure is not None:
+            self.default_similarity_numeric_measure = (
+                self.default_similarity_numeric_measure.get("numeric", None)
+            )
+            if self.default_similarity_numeric_measure is None:
+                self.default_similarity_numeric_measure = "linear"
+        else:
+            self.default_similarity_numeric_measure = "linear"
         self.datasets = self.config["datasets"]
         self.check_values()
 
@@ -33,8 +58,15 @@ class ConfigParser:
                         "default_file_type": {"type": "string"},
                         "default_phonetic_method": {"type": "string"},
                         "default_pair_method": {"type": "string"},
+                        "default_similarity_measures": {
+                            "type": "object",
+                            "properties": {
+                                "string": {"type": "string"},
+                                "numeric": {"type": "string"},
+                            },
+                        },
                     },
-                    "required": ["directory", "default_pair_method"],
+                    "required": ["directory"],
                 },
                 "datasets": {
                     "type": "array",
@@ -49,6 +81,13 @@ class ConfigParser:
                             "key_column": {"type": "string"},
                             "gold_standard": {"type": "string"},
                             "candidate_set": {"type": "string"},
+                            "similarity_measures": {
+                                "type": "object",
+                                "properties": {
+                                    "string": {"type": "string"},
+                                    "numeric": {"type": "string"},
+                                },
+                            },
                         },
                         "required": ["id", "tables", "gold_standard"],
                     },
@@ -62,7 +101,7 @@ class ConfigParser:
             raise
 
     def check_values(self):
-        values_to_check = []  # ['pair_method' , 'phonetic_method']
+        values_to_check = []  # ['pair_method', 'similarity_measures']
         for value in values_to_check:
             if not self.global_settings.get(f"default_{value}"):
                 for ds in self.datasets:
@@ -74,11 +113,11 @@ class ConfigParser:
                             f'No default_{value} set and no {value} set for dataset {ds.get("id")}'
                         )
         for ds in self.datasets:
-            if len(ds.get("tables")) < 0 or len(ds.get("tables")) > 2:
+            if not 0 < len(ds.get("tables")) <= 2:
                 logging.error(f'Invalid number of tables for dataset {ds.get("id")}')
                 raise ValueError("Only one or two tables allowed in a dataset")
 
-    def get(self, section, key=None) -> dict:
+    def get(self, section: str, key: str = None) -> Dict:
         if key:
             return self.config[section].get(key, None)
         return self.config.get(section, None)
