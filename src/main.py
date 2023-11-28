@@ -7,6 +7,7 @@ from config_parser import ConfigParser
 from data_loader import DataLoader
 from preprocessor import Preprocessor
 from indexer import Indexer
+from comparer import Comparer
 
 
 def setup_logging():
@@ -43,11 +44,11 @@ def main():
     cleaned_ds_dict = pp.clean_data()
     ix = Indexer(cp, cleaned_ds_dict)
     ds_dict_w_mis = ix.index_data()
-    # todo: clean up in the end
-    print(ds_dict_w_mis)
-    # todo: unify data format for goldstandard?
-    # todo: implement compare
-    # todo: implement monge-elkan
+    c = Comparer(cp, ds_dict_w_mis)
+    ds_dict_w_matches = c.compare()
+    # TODO: clean up in the end
+    print(ds_dict_w_matches)
+    # TODO: unify data format for goldstandard?
 
 
 if __name__ == "__main__":
