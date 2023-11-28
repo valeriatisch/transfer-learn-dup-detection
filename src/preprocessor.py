@@ -41,7 +41,7 @@ class Preprocessor:
                 df, changes_log = self.clean_df(df, phonetic_method)
                 cleaned_dfs.append(df)
                 if table_name.startswith("http"):
-                    table_name = f'{ds.get("id")}_{table_name.split("/")[-1]}'
+                    table_name = f'{ds_id}_{table_name.split("/")[-1]}'
                 cleaned_file = self.configparser.data_dir / f"cleaned_{table_name}"
                 df.to_csv(cleaned_file, index=False)
                 logging.info(
