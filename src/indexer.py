@@ -1,10 +1,9 @@
-import concurrent.futures as cf
 import logging
 from configparser import ConfigParser
 from typing import Dict
 
 import pandas as pd
-import recordlinkage
+import recordlinkage as rl
 from recordlinkage.index import Block, SortedNeighbourhood, Full, Random
 from scipy.stats import entropy
 
@@ -17,27 +16,34 @@ class Indexer:
         self.ds_dict = ds_dict
 
     def index_data(self) -> Dict[str, Dict]:
-        with cf.ThreadPoolExecutor() as executor:
-            # Create a future for each dataset indexing task
-            futures = [
-                executor.submit(self.process_dataset, ds_id, ds)
-                for ds_id, ds in self.ds_dict.items()
-            ]
-            ds_multi_indices = []
-            for future in cf.as_completed(futures):
-                multi_index = future.result()
-                ds_multi_indices.append(multi_index)
-        # todo
-        for mi, ds_id in zip(ds_multi_indices, self.ds_dict.keys()):
-            self.ds_dict[ds_id]["multi_index"] = mi
+        for ds_id, ds in self.ds_dict.items():
+            multi_index = self.process_dataset(ds_id, ds)
+            self.ds_dict[ds_id]["multi_index"] = multi_index
         return self.ds_dict
 
     def process_dataset(self, ds_id: str, ds_dict: Dict) -> pd.MultiIndex:
         candidate_set = ds_dict.get("candidate_set")
         if candidate_set is not None:
             try:
+                ltable, rtable = ds_dict.get("tables")
+                # Store original indices
+                ltable_original_index = ltable.reset_index().index.copy()
+                rtable_original_index = rtable.reset_index().index.copy()
+                # Set 'id' as index for lookup
+                ltable_id_index = ltable.set_index("id")
+                rtable_id_index = rtable.set_index("id")
+                # Map IDs in candidate_set to original indices
+                ltable_indices = [
+                    ltable_original_index[ltable_id_index.index.get_loc(_id)]
+                    for _id in candidate_set["ltable.id"]
+                ]
+                rtable_indices = [
+                    rtable_original_index[rtable_id_index.index.get_loc(_id)]
+                    for _id in candidate_set["rtable.id"]
+                ]
+                # Create MultiIndex using these original indices
                 multi_index = pd.MultiIndex.from_arrays(
-                    [candidate_set["ltable.id"], candidate_set["rtable.id"]]
+                    [ltable_indices, rtable_indices]
                 )
             except KeyError:
                 logging.error(
@@ -74,28 +80,56 @@ class Indexer:
         key = self.find_highest_entropy_common_column(df1, df2)
         return self.index(df1, df2, key, method, ds_id)
 
-    # todo: maybe later assume in two tables, one might be dirty & the two have different schemas, do do duplicate
-    #  detection on singles to be
+    # TODO: maybe for later: in case of two tables assume that they might be dirty by itself,
+    #  then indexing and comparing should be performed not only between the two tables but also within each table
+    #  Note: the two tables might have different schemas
 
-    @staticmethod
     def index(
-        df1: pd.DataFrame, df2: pd.DataFrame, key: str, method: str, ds_id: str
+        self, df1: pd.DataFrame, df2: pd.DataFrame, key: str, method: str, ds_id: str
     ) -> pd.MultiIndex:
         logging.info(
             f"Indexing tables of {ds_id} dataset with method {method} and key {key}"
         )
-        indexer = recordlinkage.Index()
+        indexer = rl.Index()
         indexing_methods = {
-            "block": Block(left_on=key, right_on=key),
-            "sortedneighbourhood": SortedNeighbourhood(left_on=key, right_on=key),
+            "block": Block(on=key),
+            "sortedneighbourhood": SortedNeighbourhood(on=key),
             "full": Full(),
             "random": Random(42),
         }
-        indexer.add(
-            indexing_methods.get(method, ValueError(f"Invalid pair method: {method}"))
-        )
-        # todo: multi key sorted neightbourhood, for & unify in the end
-        return indexer.index(df1, df2)
+        # TODO: implement multi key indexing properly (for-loop & unify), test and refactor
+        multi_key_indexing = False
+        if multi_key_indexing:
+            combined_index = pd.MultiIndex(levels=[[], []], codes=[[], []])
+            entropies = self.calculate_entropy(df1)
+            keys = 3
+            for key_col in sorted(entropies, key=entropies.get, reverse=True):
+                if keys == 0:
+                    break
+                # We need to find a common column for indexing in case the two tables have different schemas
+                if key_col in df2.columns:
+                    indexing_methods = {
+                        "block": Block(on=key_col),
+                        "sortedneighbourhood": SortedNeighbourhood(on=key_col),
+                        "full": Full(),
+                        "random": Random(42),
+                    }
+                    indexer.add(
+                        indexing_methods.get(
+                            method, ValueError(f"Invalid pair method: {method}")
+                        )
+                    )
+                    pairs = indexer.index(df1, df2)
+                    combined_index = combined_index.union(pairs)
+                    keys -= 1
+            return indexer.index(df1, df2)
+        else:
+            indexer.add(
+                indexing_methods.get(
+                    method, ValueError(f"Invalid pair method: {method}")
+                )
+            )
+            return indexer.index(df1, df2)
 
     def find_lowest_entropy_common_column(
         self, df1: pd.DataFrame, df2: pd.DataFrame
@@ -111,6 +145,7 @@ class Indexer:
     ) -> str:
         entropies_df1 = self.calculate_entropy(df1)
         for col in sorted(entropies_df1, key=entropies_df1.get, reverse=True):
+            # We need to find a common column for indexing in case the two tables have different schemas
             if col in df2.columns:
                 return col
         raise ValueError("No common entropy column found for indexing")
