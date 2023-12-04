@@ -32,9 +32,10 @@ class Comparer:
             )
             tables = ds.get("tables")
             df1 = tables[0]
+            threshold = 0.4  # TODO: set threshold in config?
             if len(tables) == 2:
                 df2 = tables[1]
-                threshold = int(min(len(df1.columns), len(df2.columns)) * 0.5)
+                threshold = int(min(len(df1.columns), len(df2.columns)) * threshold)
                 for col in df1.columns.intersection(
                     df2.columns
                 ):  # Only compare columns that are in both tables
@@ -48,7 +49,7 @@ class Comparer:
                     )
                 features = compare_obj.compute(ds.get("multi_index"), df1, df2)
             else:
-                threshold = int(len(df1.columns) * 0.5)
+                threshold = int(len(df1.columns) * threshold)
                 for col in df1.columns:
                     self.compare_columns(
                         compare_obj,
@@ -63,9 +64,9 @@ class Comparer:
                 f"Chosen threshold for summed features: {threshold} out of {len(features.columns)}"
             )
             matches = features[features.sum(axis=1) > threshold]
-            self.ds_dict[ds_id]["compared_multi_index"] = matches
-            # TODO: might delete this later or refactor in case no id colum is there,
-            #  then multi index is enough bc it's gonna be the same
+            self.ds_dict[ds_id]["similarity_scores"] = matches  # Similarity matrix
+            # Assuming there is an id column in all tables
+            # Map the indices of the matches to the actual IDs
             self.ds_dict[ds_id]["matched_ids"] = matches.index.map(
                 lambda idx: (
                     df1["id"].iloc[idx[0]],
