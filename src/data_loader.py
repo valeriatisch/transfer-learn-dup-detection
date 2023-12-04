@@ -41,6 +41,7 @@ class DataLoader:
                 "tables": ds,
                 "gold_standard": gs,
                 "pair_method": ds_info.get("pair_method"),
+                "number_indexing_keys": ds_info.get("number_indexing_keys"),
                 "phonetic_method": ds_info.get("phonetic_method"),
                 "similarity_measures": ds_info.get("similarity_measures"),
             }
