@@ -14,15 +14,17 @@ def is_column_id(column: pd.Series) -> bool:
 
     # Check the values have the same length +/-1 (except null values)
     lengths = non_null_column.astype(str).map(len)
+    print(lengths)
     if lengths.nunique() <= 3:
         is_id = True
 
     # Check for high value uniqueness
     unique_ratio = len(non_null_column.unique()) / len(non_null_column)
+    print(unique_ratio)
     if unique_ratio > 0.9:
-        is_id = is_id and True
-
-    return is_id
+        return is_id and True
+    else:
+        return False
 
 
 class Preprocessor:
