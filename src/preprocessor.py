@@ -18,11 +18,14 @@ def is_column_id(column: pd.Series) -> bool:
         is_id = True
 
     # Check for high value uniqueness
-    unique_ratio = len(non_null_column.unique()) / len(non_null_column)
+    try:
+        unique_ratio = len(non_null_column.unique()) / len(non_null_column)
+    except ZeroDivisionError:
+        return is_id
     if unique_ratio > 0.9:
-        is_id = is_id and True
-
-    return is_id
+        return is_id and True
+    else:
+        return False
 
 
 class Preprocessor:
@@ -41,7 +44,7 @@ class Preprocessor:
                 df, changes_log = self.clean_df(df, phonetic_method)
                 cleaned_dfs.append(df)
                 if table_name.startswith("http"):
-                    table_name = f'{ds.get("id")}_{table_name.split("/")[-1]}'
+                    table_name = f'{ds_id}_{table_name.split("/")[-1]}'
                 cleaned_file = self.configparser.data_dir / f"cleaned_{table_name}"
                 df.to_csv(cleaned_file, index=False)
                 logging.info(
