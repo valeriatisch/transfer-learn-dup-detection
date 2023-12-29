@@ -8,6 +8,7 @@ from data_loader import DataLoader
 from preprocessor import Preprocessor
 from indexer import Indexer
 from comparer import Comparer
+from classifier import Classifier
 
 
 def setup_logging():
@@ -46,9 +47,11 @@ def main():
     ds_dict_w_mis = ix.index_data()
     c = Comparer(cp, ds_dict_w_mis)
     ds_dict_w_matches = c.compare()
+    cl = Classifier(cp, ds_dict_w_matches)
+    cl.split()
     # TODO: clean up in the end
-    print(ds_dict_w_matches)
     # TODO: unify data format for goldstandard?
+    # TODO: document dictionary format & how it transforms
 
 
 if __name__ == "__main__":
