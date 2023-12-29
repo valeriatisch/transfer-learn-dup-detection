@@ -7,7 +7,9 @@ import pandas as pd
 
 
 class Comparer:
-    def __init__(self, configparser: ConfigParser, ds_dict: Dict[str, Dict]):
+    def __init__(
+        self, configparser: ConfigParser = None, ds_dict: Dict[str, Dict] = None
+    ):
         self.configparser = configparser
         self.ds_dict = ds_dict
 
@@ -32,7 +34,7 @@ class Comparer:
             )
             tables = ds.get("tables")
             df1 = tables[0]
-            threshold = 0.4  # TODO: set threshold in config?
+            threshold = 0.5  # TODO: set threshold in config?
             if len(tables) == 2:
                 df2 = tables[1]
                 threshold = int(min(len(df1.columns), len(df2.columns)) * threshold)
@@ -63,11 +65,12 @@ class Comparer:
             logging.info(
                 f"Chosen threshold for summed features: {threshold} out of {len(features.columns)}"
             )
-            matches = features[features.sum(axis=1) > threshold]
-            self.ds_dict[ds_id]["similarity_scores"] = matches  # Similarity matrix
+            # matches = features[features.sum(axis=1) > threshold]
+            # use matches instead of features to get more refined results
+            self.ds_dict[ds_id]["similarity_scores"] = features  # Similarity matrix
             # Assuming there is an id column in all tables
             # Map the indices of the matches to the actual IDs
-            self.ds_dict[ds_id]["matched_ids"] = matches.index.map(
+            self.ds_dict[ds_id]["matched_ids"] = features.index.map(
                 lambda idx: (
                     df1["id"].iloc[idx[0]],
                     df2["id"].iloc[idx[1]]

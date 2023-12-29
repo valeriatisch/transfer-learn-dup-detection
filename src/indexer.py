@@ -11,7 +11,9 @@ import preprocessor
 
 
 class Indexer:
-    def __init__(self, configparser: ConfigParser, ds_dict: Dict[str, Dict]):
+    def __init__(
+        self, configparser: ConfigParser = None, ds_dict: Dict[str, Dict] = None
+    ):
         self.configparser = configparser
         self.ds_dict = ds_dict
 
@@ -25,7 +27,7 @@ class Indexer:
         candidate_set = ds_dict.get("candidate_set")
         if candidate_set is not None:
             try:
-                # TODO: auslagern in eigene Funktion
+                # TODO: make it a function
                 ltable, rtable = ds_dict.get("tables")
                 # Store original indices
                 ltable_original_index = ltable.reset_index().index.copy()
@@ -72,7 +74,7 @@ class Indexer:
             keys = self.get_highest_entropy_common_columns(
                 df1, df2.columns, number_indexing_keys
             )
-            multi_index = self.index(df1, df2, keys, method, ds_id)
+            multi_index = self.index(df1, df2, keys, method, ds_id, len(tables))
         return multi_index
 
     # TODO: maybe for later: in case of two tables assume that they might be dirty by itself,
@@ -81,7 +83,12 @@ class Indexer:
 
     @staticmethod
     def index(
-        df1: pd.DataFrame, df2: pd.DataFrame, keys: List[str], method: str, ds_id: str
+        df1: pd.DataFrame,
+        df2: pd.DataFrame,
+        keys: List[str],
+        method: str,
+        ds_id: str,
+        number_tables: int,
     ) -> pd.MultiIndex:
         logging.info(
             f"Indexing tables of {ds_id} dataset with method {method} and keys {keys}"
@@ -92,7 +99,7 @@ class Indexer:
             # We need to find a common column for indexing in case the two tables have different schemas
             indexing_methods = {
                 "block": Block(on=key_col),
-                "sortedneighbourhood": SortedNeighbourhood(on=key_col),
+                "sortedneighbourhood": SortedNeighbourhood(on=key_col, window=3),
                 "full": Full(),
                 "random": Random(42),
             }
@@ -101,7 +108,10 @@ class Indexer:
                     method, ValueError(f"Invalid pair method: {method}")
                 )
             )
-            pairs = indexer.index(df1, df2)
+            if number_tables == 1:
+                pairs = indexer.index(df1)
+            else:
+                pairs = indexer.index(df1, df2)
             combined_index = combined_index.union(pairs)
         return combined_index
 
